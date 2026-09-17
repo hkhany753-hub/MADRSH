@@ -1,43 +1,66 @@
 // MADRSH Authentication Backend
-// Telegram OTP + phone/password authentication foundation
+// Telegram OTP + registration token flow
 
 const express = require('express');
 const crypto = require('crypto');
+const axios = require('axios');
 const app = express();
 
 app.use(express.json());
 
-const otpStore = new Map();
+const registrations = new Map();
 
 function createOTP(){
   return Math.floor(100000 + Math.random()*900000).toString();
 }
 
+function createToken(){
+  return crypto.randomBytes(24).toString('hex');
+}
+
+// Website starts registration and receives a private Telegram start token
 app.post('/auth/start', (req,res)=>{
   const {phone,name}=req.body;
-  const code=createOTP();
-  otpStore.set(phone,{name,code,expires:Date.now()+120000});
+  const token=createToken();
 
-  // TODO: connect Telegram Bot API (@MADRSH_LoginBot)
-  // Send code to user's Telegram account here
+  registrations.set(token, {
+    phone,
+    name,
+    telegram_id:null,
+    otp:null,
+    expires:Date.now()+10*60*1000
+  });
 
-  res.json({success:true,message:'OTP created'});
+  res.json({
+    success:true,
+    telegramLink:`https://t.me/MADRSH_LoginBot?start=${token}`
+  });
 });
 
-app.post('/auth/verify-code',(req,res)=>{
-  const {phone,code}=req.body;
-  const data=otpStore.get(phone);
+// Telegram bot connects the user
+app.post('/api/auth/telegram/connect', async (req,res)=>{
+  const {token, telegram_id}=req.body;
+  const user=registrations.get(token);
 
-  if(!data || data.expires<Date.now() || data.code!==code)
+  if(!user || user.expires<Date.now())
+    return res.status(400).json({success:false,message:'Invalid token'});
+
+  user.telegram_id=telegram_id;
+  user.otp=createOTP();
+  registrations.set(token,user);
+
+  res.json({success:true,otp:user.otp});
+});
+
+// Verify code entered on website
+app.post('/auth/verify-code',(req,res)=>{
+  const {token,code}=req.body;
+  const user=registrations.get(token);
+
+  if(!user || user.expires<Date.now() || user.otp!==code)
     return res.status(400).json({success:false,message:'Invalid code'});
 
-  otpStore.delete(phone);
-  res.json({success:true,name:data.name,verified:true});
-});
-
-app.post('/auth/hash-password',(req,res)=>{
-  const hash=crypto.createHash('sha256').update(req.body.password).digest('hex');
-  res.json({hash});
+  res.json({success:true,verified:true,name:user.name,phone:user.phone});
 });
 
 app.listen(3000,()=>console.log('MADRSH auth server running'));
