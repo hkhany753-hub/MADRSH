@@ -28,13 +28,17 @@ async function handleStart(update) {
     return;
   }
 
-  // Send Telegram identity + registration token to backend.
-  await axios.post(`${API_URL}/api/auth/telegram/connect`, {
+  const response = await axios.post(`${API_URL}/api/auth/telegram/connect`, {
     token: registerToken,
     telegram_id: chatId
   });
 
-  await sendMessage(chatId, 'تأیید تلگرام انجام شد. کد ۶ رقمی ورود را از همین ربات دریافت می‌کنید.');
+  if (response.data.success && response.data.otp) {
+    await sendMessage(chatId, `کد ۶ رقمی ثبت‌نام شما: ${response.data.otp}`);
+    return;
+  }
+
+  await sendMessage(chatId, 'خطا در تأیید ثبت‌نام. دوباره از سایت شروع کنید.');
 }
 
 module.exports = { handleStart };
