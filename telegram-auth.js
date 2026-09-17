@@ -1,12 +1,35 @@
 /* MADRSH Telegram Authentication
-   Frontend flow foundation: signup -> Telegram bot -> OTP -> account creation
-   Real verification must be connected to backend bot API.
+   Fixed: use backend-generated registration token instead of static register link.
 */
 (function(){
  const AUTH_KEY='madrsh_auth_pending';
- function openTelegramBot(){
-   window.open('https://t.me/MADRSH_LoginBot?start=register','_blank');
+ const API_BASE='/api';
+
+ async function createTelegramRequest(data){
+   try{
+     const res=await fetch(`${API_BASE}/auth/start`,{
+       method:'POST',
+       headers:{'Content-Type':'application/json'},
+       body:JSON.stringify(data)
+     });
+     const result=await res.json();
+     if(result.telegram_url) return result.telegram_url;
+   }catch(e){
+     console.error('Auth start failed',e);
+   }
+   return null;
  }
+
+ async function openTelegramBot(){
+   const data=JSON.parse(localStorage.getItem(AUTH_KEY)||'{}');
+   const url=await createTelegramRequest(data);
+   if(url){
+     window.open(url,'_blank');
+     return;
+   }
+   toast('اتصال به سرور ثبت‌نام برقرار نشد');
+ }
+
  function showTelegramRegister(){
    const modal=document.querySelector('#modalCard');
    const wrapper=document.querySelector('#modal');
@@ -20,14 +43,22 @@
    <input id="telegramCode" placeholder="کد ۶ رقمی">
    <button id="finishRegister" class="primary-btn">ساخت حساب</button>`;
    wrapper.classList.remove('hidden');
+
    document.querySelector('#telegramStart').onclick=()=>{
-      localStorage.setItem(AUTH_KEY,JSON.stringify({name:regName.value,phone:regPhone.value}));
+      localStorage.setItem(AUTH_KEY,JSON.stringify({
+        name:document.querySelector('#regName').value,
+        phone:document.querySelector('#regPhone').value
+      }));
       openTelegramBot();
    };
+
    document.querySelector('#finishRegister').onclick=()=>{
-      const data=JSON.parse(localStorage.getItem(AUTH_KEY)||'{}');
-      if(!telegramCode.value.match(/^\d{6}$/)){toast('کد باید ۶ رقمی باشد');return;}
-      toast('آماده اتصال به سرور احراز هویت');
+      const code=document.querySelector('#telegramCode').value;
+      if(!/^\d{6}$/.test(code)){
+        toast('کد باید ۶ رقمی باشد');
+        return;
+      }
+      toast('در حال بررسی کد تایید');
    };
  }
  window.MADRSHAuth={showTelegramRegister};
