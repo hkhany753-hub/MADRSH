@@ -17,45 +17,21 @@
 <div class="app-shell">
 <aside class="sidebar">
   <div class="brand"><div class="brand-mark">د</div><div><strong>درسیتا</strong><span>فضای مطالعه آنلاین</span></div></div>
-  <nav class="nav" aria-label="منوی اصلی">
-    <a class="nav-item active" href="#dashboard" data-route="dashboard"><span class="nav-icon">⌂</span><span>داشبورد</span></a>
-    <a class="nav-item" href="#study-log" data-route="study-log"><span class="nav-icon">◷</span><span>ثبت فعالیت</span></a>
-    <a class="nav-item" href="#calendar" data-route="calendar"><span class="nav-icon">▣</span><span>تقویم</span></a>
-    <a class="nav-item" href="#leaderboard" data-route="leaderboard"><span class="nav-icon">♛</span><span>برترین‌ها</span></a>
-    <a class="nav-item" href="#tools" data-route="tools"><span class="nav-icon">⌘</span><span>ابزارها</span></a>
-    <a class="nav-item" href="#exams" data-route="exams"><span class="nav-icon">▤</span><span>آزمون</span></a>
-    <a class="nav-item" href="#stats" data-route="stats"><span class="nav-icon">▥</span><span>آمار فعالیت</span></a>
-    <a class="nav-item" href="#study-rooms" data-route="study-rooms"><span class="nav-icon">▦</span><span>اتاق مطالعه</span></a>
-    <a class="nav-item" href="#chat" data-route="chat"><span class="nav-icon">💬</span><span>گفت‌وگو</span><b id="chatBadge" class="chat-badge hidden-badge">۰</b></a>
-    <a class="nav-item" href="#search" data-route="search"><span class="nav-icon">⌕</span><span>جستجو</span></a>
-    <a class="nav-item" href="#profile" data-route="profile"><span class="nav-icon">◉</span><span>پروفایل</span></a>
-    <a class="nav-item" href="#settings" data-route="settings"><span class="nav-icon">⚙</span><span>تنظیمات</span></a>
-    <a class="nav-item" href="#donate" data-route="donate"><span class="nav-icon">♡</span><span>حمایت از درسیتا</span></a>
-  </nav>
-  <div class="sidebar-bottom">
-    <div class="online-card"><span class="online-dot"></span><div><b id="online-label">حالت آزمایشی</b><small id="online-sub">اتصال آنلاین هنوز تنظیم نشده</small></div></div>
-    <button class="profile" type="button" id="profileQuick"><span class="avatar" id="quickAvatar">م</span><span><b id="quickName">مهمان</b><small>ورود / ثبت‌نام</small></span><span class="dots">•••</span></button>
-  </div>
+  <nav class="nav"></nav>
 </aside>
 <main class="main">
-  <header class="topbar"><div><p class="eyebrow">فضای مطالعه چندنفره</p><h1 id="pageTitle">داشبورد مطالعه</h1></div><div class="top-actions"><button class="ghost-btn" id="authBtn">ورود / ثبت‌نام</button><div class="status"><span></span><span id="statusText">نسخه محلی فعال</span></div></div></header>
-  <section id="dashboard" class="view active-view"></section>
-  <section id="route-view" class="view route-view"></section>
+<header class="topbar"><div><h1 id="pageTitle">داشبورد مطالعه</h1></div><div class="top-actions"><button class="ghost-btn" id="authBtn">ورود / ثبت‌نام</button></div></header>
+<section id="dashboard" class="view active-view"></section>
+<section id="route-view" class="view route-view"></section>
 </main>
 </div>
-<div id="toast" class="toast" role="status"></div>
-<div id="modal" class="modal hidden"><div class="modal-backdrop" data-close-modal></div><div class="modal-card" id="modalCard"></div></div>
+<div id="toast" class="toast"></div>
+<div id="modal" class="modal hidden"><div class="modal-card" id="modalCard"></div></div>
 <script src="config.js?v=3"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js?v=5"></script>
-<script src="shamsi-calendar.js?v=3"></script>
-<script src="calendar-bridge.js?v=1"></script>
-<script src="calendar-weekday-fix.js?v=1"></script>
-<script src="online.js?v=2"></script>
-<script src="chat-online.js?v=2"></script>
-<script src="chat.js?v=1"></script>
-<script src="admin.js?v=1"></script>
-<script src="ui-fixes.js?v=1"></script>
-<script src="tasks.js?v=1"></script>
+<script src="telegram-auth.js?v=1"></script>
+<script>
+document.querySelector('#authBtn')?.addEventListener('click',()=>MADRSHAuth.showTelegramRegister());
+</script>
 </body>
 </html>
