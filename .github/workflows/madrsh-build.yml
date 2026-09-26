@@ -1,0 +1,74 @@
+name: MADRSH builds
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npm run build
+      - name: Verify production output
+        run: test -f dist/index.html
+      - name: Upload web dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: madrsh-web-dist
+          path: dist
+
+  android:
+    runs-on: ubuntu-latest
+    needs: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: npm install
+      - run: npx cap add android
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Build Android debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: madrsh-android-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  windows:
+    runs-on: windows-latest
+    needs: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm install
+      - name: Generate Tauri icons
+        run: npx tauri icon public/madrsh-icon.svg
+      - run: npm run tauri:build
+      - name: Upload Windows bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: madrsh-windows
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
