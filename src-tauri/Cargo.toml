@@ -1,0 +1,16 @@
+[package]
+name = "madrsh"
+version = "1.0.0"
+description = "MADRSH Windows app"
+authors = ["MADRSH"]
+edition = "2021"
+
+[lib]
+name = "madrsh_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.3", features = [] }
+
+[dependencies]
+tauri = { version = "2.7", features = [] }
