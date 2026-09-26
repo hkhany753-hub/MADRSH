@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b0e14">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/madrsh-icon.svg">
 <title>درسیتا | فضای مطالعه آنلاین</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,5 +35,6 @@
 <script>
 document.querySelector('#authBtn')?.addEventListener('click',()=>MADRSHAuth.showTelegramRegister());
 </script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
 </body>
 </html>
